@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Menù">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Menù Settimanale</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#ffffff;--bg2:#f5f5f5;--bg3:#efefef;
+  --text:#1a1a1a;--text2:#666;--text3:#999;
+  --border:#e0e0e0;--border2:#ccc;
+  --accent:#1a1a1a;--accent-text:#fff;
+  --info-bg:#e8f0fe;--info-text:#1a56db;
+  --warn-bg:#fff3cd;--warn-text:#856404;
+  --success:#2e7d32;
+  --danger-text:#c0392b;
+  --radius:10px;--radius-sm:7px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
+  --text:#f2f2f7;--text2:#aeaeb2;--text3:#6e6e73;
+  --border:#3a3a3c;--border2:#545458;
+  --accent:#f2f2f7;--accent-text:#1c1c1e;
+  --info-bg:#1c3a6e;--info-text:#93bbff;
+  --warn-bg:#3d2e00;--warn-text:#ffc96b;
+  --success:#66bb6a;
+  --danger-text:#ff6b6b;
+}}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+#app{display:flex;flex-direction:column;height:100%;max-width:600px;margin:0 auto}
+#content{flex:1;overflow-y:auto;padding:16px;padding-bottom:80px;-webkit-overflow-scrolling:touch}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:var(--bg);border-top:0.5px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:10px 4px 8px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text3);font-size:10px;transition:color .15s}
+nav button.active{color:var(--accent)}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sec-title{font-size:22px;font-weight:700;margin-bottom:16px}
+.card{background:var(--bg2);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px}
+.field{margin-bottom:10px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:13px;color:var(--text2);margin-bottom:5px}
+input[type=text],input[type=number],select,textarea{width:100%;padding:10px 12px;font-size:15px;border:0.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);appearance:none;-webkit-appearance:none}
+input[type=number]{max-width:80px}
+input[type=checkbox]{width:20px;height:20px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;font-size:15px;font-weight:500;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;white-space:nowrap}
+.btn:active{opacity:.7}
+.btn-primary{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.btn-block{width:100%;margin-bottom:8px}
+.btn-sm{padding:6px 12px;font-size:13px}
+.btn-danger{color:var(--danger-text);border-color:transparent;background:transparent}
+.row-flex{display:flex;gap:8px;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;font-size:13px;border-radius:20px;background:var(--bg3);color:var(--text2);margin:2px 2px 2px 0}
+.tag button{background:none;border:none;cursor:pointer;font-size:15px;color:var(--text3);padding:0 2px;line-height:1}
+.day-row{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg2);border-radius:var(--radius-sm);margin-bottom:6px}
+.day-name{font-size:14px;font-weight:600;min-width:90px}
+.cat-pill{font-size:11px;padding:3px 9px;border-radius:12px;background:var(--info-bg);color:var(--info-text);white-space:nowrap}
+.meal-name{font-size:14px;flex:1}
+.warn-pill{font-size:11px;padding:2px 7px;border-radius:10px;background:var(--warn-bg);color:var(--warn-text);margin-left:4px}
+.divider{border:none;border-top:0.5px solid var(--border);margin:16px 0}
+.shop-toggle{display:flex;gap:8px;margin-bottom:14px}
+.shop-toggle button{flex:1;padding:8px;font-size:13px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer}
+.shop-toggle button.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.shop-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:0.5px solid var(--border);font-size:15px}
+.shop-item:last-child{border-bottom:none}
+.shop-item.chk .si-name{text-decoration:line-through;color:var(--text3)}
+.si-name{flex:1}
+.si-day{font-size:11px;color:var(--text3)}
+.prog-label{font-size:13px;color:var(--text2);margin-bottom:6px}
+.prog-bar{height:5px;background:var(--bg3);border-radius:3px;margin-bottom:14px;overflow:hidden}
+.prog-fill{height:100%;background:var(--success);border-radius:3px;transition:width .3s}
+.shop-day-hdr{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;display:flex;align-items:center;gap:8px}
+.shop-day-meal{font-size:12px;color:var(--text3);font-style:italic;font-weight:400;text-transform:none;letter-spacing:0}
+.empty{text-align:center;color:var(--text3);font-size:14px;padding:40px 0}
+.setting-block{margin-bottom:14px;padding-bottom:14px;border-bottom:0.5px solid var(--border)}
+.setting-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.setting-title{font-size:15px;font-weight:600;margin-bottom:3px}
+.setting-desc{font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.setting-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.setting-row:last-child{margin-bottom:0}
+.s-lbl{font-size:14px;min-width:100px;flex-shrink:0}
+.hist-row{font-size:12px;color:var(--text2);padding:6px 0;border-bottom:0.5px solid var(--border);display:flex;gap:8px}
+.hist-row:last-child{border-bottom:none}
+.wk-badge{background:var(--bg3);border-radius:4px;padding:1px 6px;font-size:11px;color:var(--text3);white-space:nowrap;margin-top:2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="content"></div>
+  <nav>
+    <button onclick="showTab('menu')" id="tab-menu">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Menù
+    </button>
+    <button onclick="showTab('categorie')" id="tab-categorie">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/></svg>
+      Categorie
+    </button>
+    <button onclick="showTab('ricette')" id="tab-ricette">
+      <svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h13a.5.5 0 0 1 0 9H6a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h13"/><line x1="8" y1="7" x2="14" y2="7"/></svg>
+      Ricette
+    </button>
+    <button onclick="showTab('spesa')" id="tab-spesa">
+      <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Spesa
+    </button>
+    <button onclick="showTab('impostazioni')" id="tab-impostazioni">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Impostazioni
+    </button>
+  </nav>
+</div>
+
+<script>
+const DAYS=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+let shopView='totale';
+let currentTab='menu';
+
+const DEFAULT_STATE={
+  categories:[
+    {id:'c1',name:'Carne',items:['Vitello','Pollo','Maiale','Cavallo']},
+    {id:'c2',name:'Pesce',items:['Branzino','Salmone','Orata','Sogliola','Scorfano']},
+    {id:'c3',name:'Verdure',items:['Melanzane','Zucchine','Carciofi']},
+    {id:'c4',name:'Pasta',items:['Pomodoro','Pesto','Norma']},
+  ],
+  dayRules:{'Lunedì':'c1','Martedì':'c4','Mercoledì':'c2','Giovedì':'c3','Venerdì':'c2','Sabato':'c1','Domenica':'c3'},
+  recipes:[
+    {id:'r1',name:'Pollo arrosto',cat:'c1',main:'Pollo',ingredients:['Pollo 1 kg','Rosmarino','Aglio','Olio EVO','Limone']},
+    {id:'r2',name:'Vitello tonnato',cat:'c1',main:'Vitello',ingredients:['Vitello 600 g','Tonno 100 g','Capperi','Maionese']},
+    {id:'r3',name:'Maiale al forno',cat:'c1',main:'Maiale',ingredients:['Maiale 500 g','Patate 400 g','Rosmarino','Olio EVO']},
+    {id:'r4',name:'Branzino al forno',cat:'c2',main:'Branzino',ingredients:['Branzino 500 g','Patate 300 g','Limone','Prezzemolo']},
+    {id:'r5',name:'Salmone con verdure',cat:'c2',main:'Salmone',ingredients:['Salmone 400 g','Zucchine 2','Pomodorini 200 g']},
+    {id:'r6',name:'Orata al sale',cat:'c2',main:'Orata',ingredients:['Orata 500 g','Sale grosso 1 kg','Limone','Rosmarino']},
+    {id:'r7',name:'Sogliola al burro',cat:'c2',main:'Sogliola',ingredients:['Sogliola 400 g','Burro 80 g','Limone','Prezzemolo']},
+    {id:'r8',name:'Scorfano in umido',cat:'c2',main:'Scorfano',ingredients:['Scorfano 600 g','Pomodori 300 g','Aglio','Prezzemolo']},
+    {id:'r9',name:'Pasta al pomodoro',cat:'c4',main:'Pomodoro',ingredients:['Pasta 320 g','Pomodori pelati 400 g','Basilico','Aglio']},
+    {id:'r10',name:'Melanzane alla parmigiana',cat:'c3',main:'Melanzane',ingredients:['Melanzane 600 g','Pomodoro 300 g','Mozzarella 200 g','Parmigiano 80 g']},
+  ],
+  settings:{catFrequency:{'c1':2,'c2':2,'c3':1,'c4':1},minIntervalWeeks:{},strictRotation:{}},
+  history:[],
+  currentMenu:{},
+  currentWeek:1,
+  shoppingList:[],
+};
+
+function loadState(){
+  try{
+    const saved=localStorage.getItem('menuapp_v1');
+    return saved?JSON.parse(saved):JSON.parse(JSON.stringify(DEFAULT_STATE));
+  }catch(e){return JSON.parse(JSON.stringify(DEFAULT_STATE))}
+}
+function save(){try{localStorage.setItem('menuapp_v1',JSON.stringify(S))}catch(e){}}
+
+let S=loadState();
+
+function getCat(id){return S.categories.find(c=>c.id===id)}
+function getRecipesByCat(catId){return S.recipes.filter(r=>r.cat===catId)}
+function esc(s){return String(s).replace(/'/g,"\\'")}
+
+function showTab(t){
+  currentTab=t;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.getElementById('content').scrollTop=0;
+  ({menu:renderMenu,categorie:renderCategorie,ricette:renderRicette,spesa:renderSpesa,impostazioni:renderImpostazioni})[t]();
+}
+
+function renderMenu(){
+  const el=document.getElementById('content');
+  const menuHtml=Object.keys(S.currentMenu).length?DAYS.map(d=>{
+    const meal=S.currentMenu[d];
+    const cat=meal?getCat(meal.cat):null;
+    const warn=meal&&meal.warning?`<span class="warn-pill">⚠ ${meal.warning}</span>`:'';
+    return `<div class="day-row">
+      <span class="day-name">${d}</span>
+      ${cat?`<span class="cat-pill">${cat.name}</span>`:''}
+      <span class="meal-name">${meal?meal.name+warn:'<span style="color:var(--text3)">—</span>'}</span>
+      ${meal?`<button class="btn btn-sm" onclick="rerollDay('${d}')">↻</button>`:''}
+    </div>`;
+  }).join(''):`<div class="empty">Premi "Genera menù" per creare il piano settimanale</div>`;
+
+  el.innerHTML=`<div class="sec-title">Settimana ${S.currentWeek}</div>
+    <button class="btn btn-primary btn-block" onclick="generateMenu()">↻ Genera menù</button>
+    <button class="btn btn-block" onclick="archiveAndNext()">→ Archivia e vai alla settimana successiva</button>
+    <div style="margin-top:4px">${menuHtml}</div>
+    ${S.history.length?`<p style="margin-top:12px;font-size:12px;color:var(--text3)">${S.history.length} settimane archiviate</p>`:''}`;
+}
+
+function renderCategorie(){
+  const el=document.getElementById('content');
+  el.innerHTML=`<div class="sec-title">Categorie</div>
+    <div class="card">
+      <div class="card-title">Nuova categoria</div>
+      <div class="row-flex">
+        <input type="text" id="new-cat-name" placeholder="es. Uova" style="flex:1">
+        <button class="btn btn-sm" onclick="addCategory()">+ Aggiungi</button>
+      </div>
+    </div>
+    ${S.categories.map(c=>`
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:16px;font-weight:600;flex:1">${c.name}</span>
+          <button class="btn btn-danger btn-sm" onclick="removeCategory('${c.id}')">🗑</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:10px">${c.items.map(it=>`<span class="tag">${it}<button onclick="removeItem('${c.id}','${esc(it)}')">×</button></span>`).join('')}</div>
+        <div class="row-flex">
+          <input type="text" id="item-${c.id}" placeholder="Aggiungi alimento..." style="flex:1">
+          <button class="btn btn-sm" onclick="addItem('${c.id}')">+</button>
+        </div>
+      </div>`).join('')}
+    <div class="divider"></div>
+    <div class="sec-title" style="font-size:17px">Giorni della settimana</div>
+    ${DAYS.map(d=>`
+      <div class="day-row">
+        <span class="day-name">${d}</span>
+        <select onchange="setDayRule('${d}',this.value)" style="flex:1">
+          <option value="">— libero —</option>
+          ${S.categories.map(c=>`<option value="${c.id}"${S.dayRules[d]===c.id?' selected':''}>${c.name}</option>`).join('')}
+        </select>
+      </div>`).join('')}`;
+}
+
+function renderRicette(){
+  const el=document.getElementById('content');
+  const catOpts=S.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  let html=`<div class="sec-title">Ricette</div>
+    <div class="card">
+      <div class="card-title">Nuova ricetta</div>
+      <div class="field"><label>Nome ricetta</label><input type="text" id="rname" placeholder="es. Branzino al forno"></div>
+      <div class="field"><label>Categoria</label><select id="rcat"><option value="">-- seleziona --</option>${catOpts}</select></div>
+      <div class="field"><label>Alimento principale</label><input type="text" id="rmain" placeholder="es. Branzino"></div>
+      <div class="field"><label>Ingredienti (separati da virgola)</label><input type="text" id="ring" placeholder="Branzino 500g, Limone, Olio EVO"></div>
+      <button class="btn btn-primary btn-block" style="margin-top:6px" onclick="addRecipe()">+ Aggiungi ricetta</button>
+    </div>`;
+  const byCat={};
+  S.recipes.forEach(r=>{if(!byCat[r.cat])byCat[r.cat]=[];byCat[r.cat].push(r)});
+  Object.entries(byCat).forEach(([cid,recipes])=>{
+    const cat=getCat(cid);
+    html+=`<div style="margin-bottom:4px">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px">${cat?cat.name:'Altro'}</div>
+      ${recipes.map(r=>`<div class="card" style="margin-bottom:6px">
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:600;margin-bottom:4px">${r.name} <span style="font-size:12px;color:var(--text3)">${r.main||''}</span></div>
+            <div>${r.ingredients.map(i=>`<span class="tag">${i}</span>`).join('')}</div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="removeRecipe('${r.id}')">🗑</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderSpesa(){
+  const el=document.getElementById('content');
+  if(!Object.keys(S.currentMenu).length){
+    el.innerHTML=`<div class="sec-title">Lista della spesa</div><div class="empty">Genera prima il menù settimanale</div>`;
+    return;
+  }
+  const total=S.shoppingList.length;
+  const checked=S.shoppingList.filter(i=>i.checked).length;
+  const pct=total?Math.round(checked/total*100):0;
+
+  let html=`<div class="sec-title">Spesa – Sett. ${S.currentWeek}</div>
+    <div class="shop-toggle">
+      <button class="${shopView==='totale'?'active':''}" onclick="setShopView('totale')">Vista totale</button>
+      <button class="${shopView==='giorno'?'active':''}" onclick="setShopView('giorno')">Per giorno</button>
+    </div>
+    <div class="prog-label">${checked} di ${total} ingredienti acquistati</div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn btn-sm" style="flex:1" onclick="clearChecked()">🗑 Rimuovi spuntati</button>
+      <button class="btn btn-sm" style="flex:1" onclick="uncheckAll()">↺ Deseleziona tutti</button>
+    </div>`;
+
+  if(shopView==='totale'){
+    html+=`<div class="card" style="padding:0 14px">`;
+    S.shoppingList.forEach((item,i)=>{
+      html+=`<div class="shop-item ${item.checked?'chk':''}">
+        <input type="checkbox" ${item.checked?'checked':''} onchange="toggleShop(${i},this.checked)">
+        <span class="si-name">${item.name}</span>
+        <span class="si-day">${item.days.map(d=>d.slice(0,3)).join(', ')}</span>
+      </div>`;
+    });
+    html+=`</div>`;
+  } else {
+    DAYS.forEach(d=>{
+      const meal=S.currentMenu[d];
+      if(!meal) return;
+      const dayItems=S.shoppingList.filter(i=>i.dayMap&&i.dayMap[d]);
+      if(!dayItems.length) return;
+      html+=`<div class="shop-day-hdr">${d} <span class="shop-day-meal">${meal.name}</span> <span style="margin-left:auto;font-size:11px;color:var(--text3)">${dayItems.filter(i=>i.checked).length}/${dayItems.length}</span></div>
+        <div class="card" style="padding:0 14px;margin-bottom:10px">`;
+      dayItems.forEach(item=>{
+        const idx=S.shoppingList.indexOf(item);
+        html+=`<div class="shop-item ${item.checked?'chk':''}">
+          <input type="checkbox" ${item.checked?'checked':''} onchange="toggleShop(${idx},this.checked)">
+          <span class="si-name">${item.name}</span>
+        </div>`;
+      });
+      html+=`</div>`;
+    });
+  }
+  el.innerHTML=html;
+}
+
+function renderImpostazioni(){
+  const el=document.getElementById('content');
+  let html=`<div class="sec-title">Impostazioni</div>`;
+  S.categories.forEach(c=>{
+    const freq=S.settings.catFrequency[c.id]??1;
+    html+=`<div class="card">
+      <div style="font-size:17px;font-weight:700;margin-bottom:14px">${c.name}</div>
+      <div class="setting-block">
+        <div class="setting-title">Frequenza settimanale</div>
+        <div class="setting-desc">Quante volte questa categoria compare nel menù ogni settimana.</div>
+        <div class="setting-row">
+          <span class="s-lbl">Volte a settimana</span>
+          <input type="number" min="0" max="7" value="${freq}" onchange="setSetting('catFrequency','${c.id}',parseInt(this.value)||0);save()">
+        </div>
+      </div>
+      <div class="setting-block">
+        <div class="setting-title">Intervallo minimo tra ripetizioni</div>
+        <div class="setting-desc">Ogni alimento non può ripresentarsi prima di N settimane (0 = nessun limite).</div>
+        ${c.items.map(item=>{const key=c.id+'__'+item;const val=S.settings.minIntervalWeeks[key]??0;
+          return `<div class="setting-row">
+            <span class="s-lbl">${item}</span>
+            <input type="number" min="0" max="52" value="${val}" onchange="setSetting('minIntervalWeeks','${c.id}__${esc(item)}',parseInt(this.value)||0);save()">
+            <span style="font-size:12px;color:var(--text3)">sett.</span>
+          </div>`;}).join('')}
+      </div>
+      <div class="setting-block">
+        <div class="setting-title">Rotazione equa</div>
+        <div class="setting-desc">Un alimento torna nel menù solo dopo che tutti gli altri della categoria sono stati usati almeno una volta.</div>
+        <div class="setting-row">
+          <input type="checkbox" id="rot-${c.id}" ${S.settings.strictRotation[c.id]?'checked':''} onchange="setSetting('strictRotation','${c.id}',this.checked);save()">
+          <label for="rot-${c.id}" style="font-size:15px;cursor:pointer">Attiva rotazione equa</label>
+        </div>
+      </div>
+    </div>`;
+  });
+  if(S.history.length){
+    html+=`<div class="divider"></div><div style="font-size:17px;font-weight:700;margin-bottom:12px">Storico settimane</div><div class="card">`;
+    S.history.slice(-8).reverse().forEach(h=>{
+      html+=`<div class="hist-row"><span class="wk-badge">Sett. ${h.week}</span><span>${Object.entries(h.menu).filter(([,m])=>m).map(([d,m])=>`${d.slice(0,3)}: <b>${m.name}</b>`).join(' · ')}</span></div>`;
+    });
+    html+=`</div>`;
+    html+=`<button class="btn btn-danger btn-block" style="margin-top:8px" onclick="if(confirm('Cancellare tutto lo storico?')){S.history=[];save();renderImpostazioni()}">🗑 Cancella storico</button>`;
+  }
+  el.innerHTML=html;
+}
+
+function setShopView(v){shopView=v;renderSpesa()}
+
+function buildShoppingList(){
+  const map={};
+  DAYS.forEach(d=>{
+    const meal=S.currentMenu[d];
+    if(!meal||!meal.ingredients)return;
+    meal.ingredients.forEach(ing=>{
+      const key=ing.toLowerCase().replace(/\s+\d+.*$/,'').trim();
+      if(!map[key]){map[key]={name:ing,checked:false,days:[],dayMap:{}};}
+      if(!map[key].days.includes(d))map[key].days.push(d);
+      map[key].dayMap[d]=true;
+    });
+  });
+  const prev=S.shoppingList;
+  S.shoppingList=Object.values(map).map(item=>{
+    const old=prev.find(p=>p.name===item.name);
+    return{...item,checked:old?old.checked:false};
+  });
+}
+
+function generateMenu(){
+  const week=S.currentWeek;const menu={};const usedMains={};
+  DAYS.forEach(d=>{
+    const catId=S.dayRules[d];
+    if(!catId){menu[d]=null;return}
+    if(!usedMains[catId])usedMains[catId]=[];
+    const freq=S.settings.catFrequency[catId]??7;
+    const timesUsed=Object.values(menu).filter(m=>m&&m.cat===catId).length;
+    if(timesUsed>=freq){menu[d]=null;return}
+    const allR=getRecipesByCat(catId);
+    if(!allR.length){menu[d]=null;return}
+    let cands=allR.filter(r=>{
+      const key=catId+'__'+(r.main||r.name);
+      const minI=S.settings.minIntervalWeeks[key]??0;
+      if(minI>0){const lw=getLastUsedWeek(catId,r.main||r.name);if(lw!==null&&(week-lw)<minI)return false}
+      return!usedMains[catId].includes(r.main||r.name);
+    });
+    if(S.settings.strictRotation[catId]&&cands.length)cands=applyRotation(catId,cands);
+    if(!cands.length)cands=allR.filter(r=>!usedMains[catId].includes(r.main||r.name));
+    if(!cands.length)cands=allR;
+    const pick=cands[Math.floor(Math.random()*cands.length)];
+    menu[d]={...pick};
+    usedMains[catId].push(pick.main||pick.name);
+  });
+  S.currentMenu=menu;buildShoppingList();save();renderMenu();
+}
+
+function archiveAndNext(){
+  if(Object.keys(S.currentMenu).length){
+    S.history.push({week:S.currentWeek,menu:JSON.parse(JSON.stringify(S.currentMenu))});
+  }
+  S.currentWeek++;S.currentMenu={};S.shoppingList=[];
+  generateMenu();
+}
+
+function applyRotation(catId,cands){
+  const usage={};
+  [...new Set(getRecipesByCat(catId).map(r=>r.main||r.name))].forEach(m=>{usage[m]=getLastUsedWeek(catId,m)??-999});
+  const sorted=cands.slice().sort((a,b)=>(usage[a.main||a.name])-(usage[b.main||b.name]));
+  const minVal=usage[sorted[0].main||sorted[0].name];
+  return sorted.filter(r=>usage[r.main||r.name]===minVal);
+}
+
+function getLastUsedWeek(catId,mainName){
+  for(let i=S.history.length-1;i>=0;i--){
+    if(Object.values(S.history[i].menu).find(m=>m&&m.cat===catId&&(m.main||m.name)===mainName))return S.history[i].week;
+  }
+  return null;
+}
+
+function rerollDay(day){
+  const catId=S.dayRules[day];if(!catId)return;
+  const used=Object.entries(S.currentMenu).filter(([d,m])=>d!==day&&m&&m.cat===catId).map(([,m])=>m.main||m.name);
+  const pool=getRecipesByCat(catId).filter(r=>!used.includes(r.main||r.name));
+  if(pool.length)S.currentMenu[day]=pool[Math.floor(Math.random()*pool.length)];
+  buildShoppingList();save();renderMenu();
+}
+
+function toggleShop(i,v){S.shoppingList[i].checked=v;save();renderSpesa()}
+function clearChecked(){S.shoppingList=S.shoppingList.filter(i=>!i.checked);save();renderSpesa()}
+function uncheckAll(){S.shoppingList.forEach(i=>i.checked=false);save();renderSpesa()}
+function setSetting(type,key,val){S.settings[type][key]=val}
+
+function addCategory(){
+  const name=document.getElementById('new-cat-name').value.trim();if(!name)return;
+  S.categories.push({id:'c'+Date.now(),name,items:[]});
+  save();renderCategorie();
+}
+function removeCategory(id){
+  if(!confirm('Eliminare questa categoria?'))return;
+  S.categories=S.categories.filter(c=>c.id!==id);
+  DAYS.forEach(d=>{if(S.dayRules[d]===id)delete S.dayRules[d]});
+  save();renderCategorie();
+}
+function addItem(cid){
+  const inp=document.getElementById('item-'+cid);const val=inp.value.trim();if(!val)return;
+  const cat=getCat(cid);if(cat){cat.items.push(val);}inp.value='';save();renderCategorie();
+}
+function removeItem(cid,item){
+  const cat=getCat(cid);if(cat)cat.items=cat.items.filter(i=>i!==item);
+  save();renderCategorie();
+}
+function setDayRule(day,catId){S.dayRules[day]=catId||null;save()}
+function addRecipe(){
+  const name=document.getElementById('rname').value.trim();
+  const cat=document.getElementById('rcat').value;
+  const main=document.getElementById('rmain').value.trim();
+  const ing=document.getElementById('ring').value.trim();
+  if(!name||!cat)return;
+  S.recipes.push({id:'r'+Date.now(),name,cat,main,ingredients:ing?ing.split(',').map(s=>s.trim()).filter(Boolean):[]});
+  save();renderRicette();
+}
+function removeRecipe(id){
+  if(!confirm('Eliminare questa ricetta?'))return;
+  S.recipes=S.recipes.filter(r=>r.id!==id);save();renderRicette();
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+showTab('menu');
+</script>
+</body>
+</html>
